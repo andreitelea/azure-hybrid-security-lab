@@ -48,15 +48,15 @@ graph TD
 | **CLIENT01** | Windows 11 Enterprise 26H2 (Eval) | Domain-joined reception workstation |
 
 Host: Intel i7-12700K, 32 GB RAM, Windows 11 Pro + Hyper-V. Cloud side:
-Microsoft Entra ID and an Azure subscription (pay-as-you-go, with cost controls).
+Microsoft Entra ID (Free) and an Azure subscription (pay-as-you-go, with a monthly budget and alerts).
 
 ---
 
 ## Roadmap
 
+- [x] **Phase 0** — Cost control: budget and alerts before creating any resource
 - [x] **Phase 1** — On-premises foundation and controlled internet egress
-- [ ] Phase 0 — Cost control (budgets and alerts) before creating paid resources
-- [ ] Phase 2 — Entra ID tenant: separate cloud admins, break-glass accounts, MFA
+- [x] **Phase 2** — Entra ID foundation: tenant decision, cloud-only admin, MFA, verified lab domain
 - [ ] Phase 3 — Hybrid identity with Entra Cloud Sync
 - [ ] Phase 4 — Conditional Access, PIM, Identity Protection
 - [ ] Phase 5 — Azure infrastructure security
@@ -70,7 +70,7 @@ Microsoft Entra ID and an Azure subscription (pay-as-you-go, with cost controls)
 ## Documentation
 
 1. [On-premises foundation & controlled egress](docs/01-on-prem-foundation.md)
-2. Entra ID tenant *(in progress)*
+2. [Entra ID foundation & cost control](docs/02-entra-id-foundation.md)
 3. Hybrid identity *(in progress)*
 
 ---
@@ -82,6 +82,10 @@ Microsoft Entra ID and an Azure subscription (pay-as-you-go, with cost controls)
 - Reading firewall logs and turning a finding into a hardening action
 - Group Policy: LLMNR and NetBIOS disabled domain-wide (anti name-poisoning)
 - Safe change management: checkpoints, staged rollout, before/after verification
+- Cloud cost governance: pay-as-you-go without paid support, budgets with actual and forecast alerts
+- Entra ID administration: separate cloud-only admin, MFA, emergency-access design and its trade-offs
+- Custom domain verification (DNS TXT) and email anti-spoofing for a non-sending domain (SPF `-all`, DMARC `p=reject`)
+- Documenting decisions and limitations honestly (licensing blocker → existing tenant)
 
 ---
 

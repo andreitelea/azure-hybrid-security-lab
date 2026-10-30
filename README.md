@@ -27,7 +27,7 @@ so every step is done with security and auditability in mind.
 
 ---
 
-## Architecture (phase 1)
+## Architecture (phase 3)
 
 ```mermaid
 graph TD
@@ -35,16 +35,20 @@ graph TD
     HOME ---|"Lab-WAN"| FW["FW01 - OPNsense<br/>default-deny egress"]
     subgraph LAB["Lab-Clinica-Private - 10.10.10.0/24"]
         DC["DC01<br/>Windows Server 2022<br/>10.10.10.10"]
+        SYNC["SYNC01<br/>Cloud Sync agent (Tier 0)<br/>10.10.10.30"]
         CL["CLIENT01<br/>Windows 11 Enterprise<br/>10.10.10.20"]
     end
     FW --- DC
+    FW --- SYNC
     FW --- CL
+    SYNC -.->|"HTTPS: users, groups,<br/>password hashes"| ENTRA["Microsoft Entra ID<br/>@sangiorgio-lab.com"]
 ```
 
 | Host | OS | Role |
 |------|----|----|
 | **FW01** | OPNsense 26.7 | Firewall / gateway, DNS resolver (Unbound + DNSSEC) |
 | **DC01** | Windows Server 2022 (Eval) | Domain Controller + DNS, `sangiorgio.internal` |
+| **SYNC01** | Windows Server 2022 (Eval) | Microsoft Entra Cloud Sync provisioning agent, hardened as Tier 0 |
 | **CLIENT01** | Windows 11 Enterprise 26H2 (Eval) | Domain-joined reception workstation |
 
 Host: Intel i7-12700K, 32 GB RAM, Windows 11 Pro + Hyper-V. Cloud side:
@@ -57,7 +61,7 @@ Microsoft Entra ID (Free) and an Azure subscription (pay-as-you-go, with a month
 - [x] **Phase 0** — Cost control: budget and alerts before creating any resource
 - [x] **Phase 1** — On-premises foundation and controlled internet egress
 - [x] **Phase 2** — Entra ID foundation: tenant decision, cloud-only admin, MFA, verified lab domain
-- [ ] Phase 3 — Hybrid identity with Entra Cloud Sync
+- [x] **Phase 3** — Hybrid identity with Entra Cloud Sync, Tier 0 hardening of the sync server
 - [ ] Phase 4 — Conditional Access, PIM, Identity Protection
 - [ ] Phase 5 — Azure infrastructure security
 - [ ] Phase 6 — Microsoft Sentinel (cloud SOC)
@@ -71,7 +75,8 @@ Microsoft Entra ID (Free) and an Azure subscription (pay-as-you-go, with a month
 
 1. [On-premises foundation & controlled egress](docs/01-on-prem-foundation.md)
 2. [Entra ID foundation & cost control](docs/02-entra-id-foundation.md)
-3. Hybrid identity *(in progress)*
+3. [Hybrid identity with Entra Cloud Sync](docs/03-hybrid-identity-cloud-sync.md)
+4. Conditional Access, PIM, Identity Protection *(in progress)*
 
 ---
 
@@ -86,6 +91,10 @@ Microsoft Entra ID (Free) and an Azure subscription (pay-as-you-go, with a month
 - Entra ID administration: separate cloud-only admin, MFA, emergency-access design and its trade-offs
 - Custom domain verification (DNS TXT) and email anti-spoofing for a non-sending domain (SPF `-all`, DMARC `p=reject`)
 - Documenting decisions and limitations honestly (licensing blocker → existing tenant)
+- Hybrid identity: Entra Cloud Sync with password hash sync, OU-scoped sync that keeps admins on-premises, accidental-deletion protection
+- UPN suffix migration to a verified public domain
+- Tier 0 server hardening: Windows LAPS with encrypted passwords, restricted logon rights, incoming NTLM denied (tested Kerberos vs NTLM)
+- Least privilege in practice: temporary Schema Admins membership, gMSA for the sync service
 
 ---
 
